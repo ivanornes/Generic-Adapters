@@ -21,7 +21,7 @@ class PlaylistModule {
 
     @Provides
     fun retrofit() = Retrofit.Builder()
-        .baseUrl("http://192.168.1.5:2999/") //please check that it matches your current local ip
+        .baseUrl("http://192.168.0.17:3000/") //please check that it matches your current local ip
         .client(client)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
