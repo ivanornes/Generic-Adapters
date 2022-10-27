@@ -40,4 +40,8 @@ private val viewHolderFactory: ViewHolderFactory
     override fun getItemCount(): Int {
         return differ.currentList.size
     }
+
+    fun set(cells: List<RecyclerViewAdapterCellController>) {
+        differ.submitList(cells)
+    }
 }

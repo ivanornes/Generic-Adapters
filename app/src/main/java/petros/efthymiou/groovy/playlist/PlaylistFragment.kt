@@ -1,10 +1,10 @@
 package petros.efthymiou.groovy.playlist
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -13,10 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_playlist.*
 import kotlinx.android.synthetic.main.fragment_playlist.view.*
-import okhttp3.OkHttpClient
 import petros.efthymiou.groovy.R
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import petros.efthymiou.groovy.common.GenericRecyclerViewAdapter
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -27,6 +25,8 @@ class PlaylistFragment : Fragment() {
     @Inject
     lateinit var viewModelFactory: PlaylistViewModelFactory
 
+    lateinit var genericRecyclerViewAdapter: GenericRecyclerViewAdapter
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_playlist, container, false)
@@ -35,7 +35,11 @@ class PlaylistFragment : Fragment() {
 
         observeLoader()
 
-        observePlaylists(view)
+        //observePlaylists(view)
+
+        observeCellControllerPlaylists()
+
+        setupCellControllerList(view.playlists_list)
 
         return view
     }
@@ -59,6 +63,12 @@ class PlaylistFragment : Fragment() {
         }
     }
 
+    private fun observeCellControllerPlaylists() {
+        viewModel.playlistCellControllers.observe(this as LifecycleOwner) { playlists ->
+            genericRecyclerViewAdapter.set(playlists)
+        }
+    }
+
     private fun setupList(
         view: View?,
         playlists: List<Playlist>
@@ -75,6 +85,19 @@ class PlaylistFragment : Fragment() {
         }
     }
 
+    private fun setupCellControllerList(
+        view: View?
+    ) {
+        val layoutFactory = PlaylistViewHolderFactory(LayoutInflater.from(context))
+        genericRecyclerViewAdapter = GenericRecyclerViewAdapter(layoutFactory)
+
+        with(view as RecyclerView) {
+            layoutManager = LinearLayoutManager(context)
+
+            adapter = genericRecyclerViewAdapter
+        }
+    }
+
     private fun setupViewModel() {
         viewModel = ViewModelProvider(this, viewModelFactory).get(PlaylistViewModel::class.java)
     }
@@ -82,7 +105,6 @@ class PlaylistFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance() =
-                PlaylistFragment().apply {}
+        fun newInstance() = PlaylistFragment().apply {}
     }
 }
